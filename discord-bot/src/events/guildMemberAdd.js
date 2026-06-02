@@ -7,9 +7,16 @@ module.exports = {
   async execute(member) {
     const config = db.prepare('SELECT * FROM guild_config WHERE guild_id = ?').get(member.guild.id);
 
-    // Rol de nivel inicial
+    // Rol de nivel inicial + mensaje en canal de niveles
     const startRole = member.guild.roles.cache.find(r => r.name === 'Nivel 1 - 9');
     if (startRole) await member.roles.add(startRole).catch(() => {});
+
+    const levelsChannel = member.guild.channels.cache.get('1508968426859794503');
+    if (levelsChannel) {
+      await levelsChannel.send(
+        `👋 ¡Bienvenido/a al servidor, ${member}! Has recibido el rol **Nivel 1 - 9**. ¡Empieza a chatear para subir de nivel!`
+      ).catch(() => {});
+    }
 
     // Autorole
     if (config?.autorole) {
