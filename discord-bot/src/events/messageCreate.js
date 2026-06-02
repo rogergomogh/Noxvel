@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { addXp, getUserLevel } = require('../utils/levels');
+const { addXp, getUserLevel, updateLevelRole, getRoleNameForLevel } = require('../utils/levels');
 const db = require('../database/db');
 
 module.exports = {
@@ -20,6 +20,21 @@ module.exports = {
     // --- Subida de nivel ---
     const data = getUserLevel(guildId, message.author.id);
 
+    // Actualizar rol de nivel si cruzó un umbral de 10 en 10
+    const oldTier = Math.floor(result.oldLevel / 10);
+    const newTier = Math.floor(result.newLevel / 10);
+    const roleChanged = newTier !== oldTier || (result.oldLevel === 0 && result.newLevel >= 1);
+    let newRoleName = null;
+    if (roleChanged) {
+      const member = await message.guild.members.fetch(message.author.id).catch(() => null);
+      if (member) {
+        await updateLevelRole(member, result.newLevel);
+        newRoleName = getRoleNameForLevel(result.newLevel);
+      }
+    }
+
+    const roleText = newRoleName ? `\n🏅 Nuevo rol: **${newRoleName}**` : '';
+
     const embed = new EmbedBuilder()
       .setColor(0xf1c40f)
       .setAuthor({
@@ -30,7 +45,8 @@ module.exports = {
       .setDescription(
         `**${message.author}** ha alcanzado el **nivel ${result.newLevel}** 🎉\n\n` +
         `\`${data.bar}\` ${data.percent}%\n` +
-        `XP total: **${data.totalXp.toLocaleString()}**`
+        `XP total: **${data.totalXp.toLocaleString()}**` +
+        roleText
       )
       .setTimestamp();
 
