@@ -7,9 +7,12 @@ module.exports = {
   async execute(member) {
     const config = db.prepare('SELECT * FROM guild_config WHERE guild_id = ?').get(member.guild.id);
 
-    // Rol de nivel inicial
-    const startRole = member.guild.roles.cache.get('1511387570242719895');
-    if (startRole) await member.roles.add(startRole).catch(() => {});
+    // Roles iniciales
+    const initialRoles = ['1511387570242719895', '1511410249381449810'];
+    for (const id of initialRoles) {
+      const role = member.guild.roles.cache.get(id);
+      if (role) await member.roles.add(role).catch(() => {});
+    }
 
 
     // Autorole
