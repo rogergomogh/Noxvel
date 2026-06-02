@@ -1,4 +1,3 @@
-const { EmbedBuilder } = require('discord.js');
 const { addXp, getUserLevel, updateLevelRole, getRoleNameForLevel } = require('../utils/levels');
 const db = require('../database/db');
 
@@ -33,30 +32,16 @@ module.exports = {
       }
     }
 
-    const roleText = newRoleName ? `\n🏅 Nuevo rol: **${newRoleName}**` : '';
+    const roleText = newRoleName ? ` ¡Has obtenido el rol **${newRoleName}**!` : '';
 
-    const embed = new EmbedBuilder()
-      .setColor(0xf1c40f)
-      .setAuthor({
-        name: message.author.username,
-        iconURL: message.author.displayAvatarURL(),
-      })
-      .setTitle('⬆️  ¡Subiste de nivel!')
-      .setDescription(
-        `**${message.author}** ha alcanzado el **nivel ${result.newLevel}** 🎉\n\n` +
-        `\`${data.bar}\` ${data.percent}%\n` +
-        `XP total: **${data.totalXp.toLocaleString()}**` +
-        roleText
-      )
-      .setTimestamp();
-
-    // Enviar al canal de nivel si está configurado, si no al canal actual
     let targetChannel = message.channel;
     if (config?.level_channel) {
       const ch = message.guild.channels.cache.get(config.level_channel);
       if (ch) targetChannel = ch;
     }
 
-    await targetChannel.send({ embeds: [embed] }).catch(() => {});
+    await targetChannel.send(
+      `🎉 ¡Felicidades, ${message.author}! Has subido al **nivel ${result.newLevel}**.${roleText}`
+    ).catch(() => {});
   },
 };
