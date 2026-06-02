@@ -7,8 +7,8 @@ module.exports = {
   async execute(member) {
     const config = db.prepare('SELECT * FROM guild_config WHERE guild_id = ?').get(member.guild.id);
 
-    // Rol de nivel inicial + mensaje en canal de niveles
-    const startRole = member.guild.roles.cache.find(r => r.name === 'Nivel 1 - 9');
+    // Rol de nivel inicial
+    const startRole = member.guild.roles.cache.get('1511387570242719895');
     if (startRole) await member.roles.add(startRole).catch(() => {});
 
 

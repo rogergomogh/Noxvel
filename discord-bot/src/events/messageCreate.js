@@ -1,4 +1,4 @@
-const { addXp, getUserLevel, updateLevelRole, getRoleNameForLevel } = require('../utils/levels');
+const { addXp, getUserLevel, updateLevelRole } = require('../utils/levels');
 const db = require('../database/db');
 
 module.exports = {
@@ -27,8 +27,8 @@ module.exports = {
     if (roleChanged) {
       const member = await message.guild.members.fetch(message.author.id).catch(() => null);
       if (member) {
-        await updateLevelRole(member, result.newLevel);
-        newRoleName = getRoleNameForLevel(result.newLevel);
+        const assigned = await updateLevelRole(member, result.newLevel);
+        newRoleName = assigned?.name ?? null;
       }
     }
 

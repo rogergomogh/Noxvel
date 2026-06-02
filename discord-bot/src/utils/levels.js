@@ -107,45 +107,35 @@ function getLeaderboard(guildId, limit = 10) {
   `).all(guildId, limit);
 }
 
-/**
- * Devuelve el nombre del rol que corresponde a un nivel dado.
- * null si el nivel es 0-0 (sin rol todavía).
- */
-function getRoleNameForLevel(level) {
-  if (level >= 50) return 'Nivel 50';
-  if (level >= 40) return 'Nivel 40 - 49';
-  if (level >= 30) return 'Nivel 30 - 39';
-  if (level >= 20) return 'Nivel 20 - 29';
-  if (level >= 10) return 'Nivel 10 - 19';
-  if (level >= 1)  return 'Nivel 1 - 9';
-  return null;
-}
-
-/**
- * Actualiza el rol de nivel de un miembro de Discord.
- * Elimina todos los roles de nivel anteriores y asigna el nuevo si corresponde.
- */
-const LEVEL_ROLE_NAMES = [
-  'Nivel 1 - 9',
-  'Nivel 10 - 19',
-  'Nivel 20 - 29',
-  'Nivel 30 - 39',
-  'Nivel 40 - 49',
-  'Nivel 50',
+const LEVEL_ROLES = [
+  { minLevel: 50, id: '1511387912065781840', name: 'Nivel 50' },
+  { minLevel: 40, id: '1511387854268399696', name: 'Nivel 40 - 49' },
+  { minLevel: 30, id: '1511387798345744488', name: 'Nivel 30 - 39' },
+  { minLevel: 20, id: '1511387762186649752', name: 'Nivel 20 - 29' },
+  { minLevel: 10, id: '1511387700861603930', name: 'Nivel 10 - 19' },
+  { minLevel:  1, id: '1511387570242719895', name: 'Nivel 1 - 9' },
 ];
 
-async function updateLevelRole(member, newLevel) {
-  const targetRoleName = getRoleNameForLevel(newLevel);
+const LEVEL_ROLE_IDS = LEVEL_ROLES.map(r => r.id);
 
-  const toRemove = member.roles.cache.filter(r => LEVEL_ROLE_NAMES.includes(r.name));
-  if (toRemove.size > 0) {
-    await member.roles.remove(toRemove).catch(() => {});
-  }
-
-  if (targetRoleName) {
-    const role = member.guild.roles.cache.find(r => r.name === targetRoleName);
-    if (role) await member.roles.add(role).catch(() => {});
-  }
+/** Devuelve el objeto de rol correspondiente al nivel dado, o null si es nivel 0. */
+function getRoleForLevel(level) {
+  return LEVEL_ROLES.find(r => level >= r.minLevel) ?? null;
 }
 
-module.exports = { addXp, getUserLevel, getLeaderboard, calcLevel, xpForNextLevel, progressBar, getRoleNameForLevel, updateLevelRole, LEVEL_ROLE_NAMES };
+/** Actualiza el rol de nivel: elimina todos los roles de nivel anteriores y asigna el nuevo. */
+async function updateLevelRole(member, newLevel) {
+  const target = getRoleForLevel(newLevel);
+
+  const toRemove = member.roles.cache.filter(r => LEVEL_ROLE_IDS.includes(r.id));
+  if (toRemove.size > 0) await member.roles.remove(toRemove).catch(() => {});
+
+  if (target) {
+    const role = member.guild.roles.cache.get(target.id);
+    if (role) await member.roles.add(role).catch(() => {});
+  }
+
+  return target;
+}
+
+module.exports = { addXp, getUserLevel, getLeaderboard, calcLevel, xpForNextLevel, progressBar, getRoleForLevel, updateLevelRole, LEVEL_ROLE_IDS };
