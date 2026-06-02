@@ -126,12 +126,19 @@ function getRoleForLevel(level) {
 async function updateLevelRole(member, newLevel) {
   const target = getRoleForLevel(newLevel);
 
-  const toRemove = member.roles.cache.filter(r => LEVEL_ROLE_IDS.includes(r.id));
-  if (toRemove.size > 0) await member.roles.remove(toRemove).catch(() => {});
+  // Fetch fresco para asegurarnos de tener los roles actualizados
+  const freshMember = await member.guild.members.fetch(member.id);
 
+  // Eliminar cada rol de nivel uno a uno
+  for (const id of LEVEL_ROLE_IDS) {
+    if (freshMember.roles.cache.has(id)) {
+      await freshMember.roles.remove(id).catch(e => console.error(`Error eliminando rol ${id}:`, e));
+    }
+  }
+
+  // Asignar el nuevo rol
   if (target) {
-    const role = member.guild.roles.cache.get(target.id);
-    if (role) await member.roles.add(role).catch(() => {});
+    await freshMember.roles.add(target.id).catch(e => console.error(`Error añadiendo rol ${target.id}:`, e));
   }
 
   return target;
