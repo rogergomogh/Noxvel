@@ -2,7 +2,11 @@ const { EmbedBuilder } = require('discord.js');
 const db = require('../database/db');
 const { sendLog } = require('../utils/logger');
 
-const INVITE_LOG_CHANNEL = '1511420257737375904';
+const INVITE_LOG_CHANNEL  = '1511420257737375904';
+const WELCOME_CHANNEL     = '1511425831090782380';
+const CHANNEL_RULES       = '<#1505975041790050326>';
+const CHANNEL_ROLES       = '<#1508968307238113382>';
+const CHANNEL_PRESENTACION = '<#1508969781011808377>';
 
 module.exports = {
   name: 'guildMemberAdd',
@@ -16,6 +20,26 @@ module.exports = {
     for (const id of initialRoles) {
       const role = guild.roles.cache.get(id);
       if (role) await member.roles.add(role).catch(() => {});
+    }
+
+    // ── Mensaje de bienvenida ────────────────────────────────────────
+    const welcomeChannel = guild.channels.cache.get(WELCOME_CHANNEL);
+    if (welcomeChannel) {
+      const embed = new EmbedBuilder()
+        .setColor(0x2ecc71)
+        .setDescription(
+          `Se acaba de unir ${member}\nദ്ദി ≽^⎚˕⎚^≼ .ᐟ\n\n` +
+          `Disfruta y diviértete con esta Comunidad. Estamos contentos de tenerte.\n\n` +
+          `**¡Recuerda visitar estos canales!**\n` +
+          `• ${CHANNEL_RULES}\n` +
+          `• ${CHANNEL_ROLES}\n` +
+          `• ${CHANNEL_PRESENTACION}`
+        )
+        .setThumbnail(member.user.displayAvatarURL({ size: 256 }))
+        .setFooter({ text: `${guild.memberCount} miembros` })
+        .setTimestamp();
+
+      await welcomeChannel.send({ embeds: [embed] }).catch(() => {});
     }
 
     // ── Autorole ─────────────────────────────────────────────────────
