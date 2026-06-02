@@ -92,7 +92,6 @@ function getUserLevel(guildId, userId) {
     currentXp,
     xpNeeded,
     totalXp: row.xp,
-    totalMessages: row.total_messages,
     bar: progressBar(row.xp),
     percent: progressPercent(row.xp),
   };

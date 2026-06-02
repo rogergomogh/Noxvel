@@ -35,7 +35,6 @@ module.exports = {
       .addFields(
         { name: '🏆 Posición',         value: medal,                                    inline: true },
         { name: '⭐ Nivel',             value: `**${data.level}**`,                      inline: true },
-        { name: '💬 Mensajes',          value: `${data.totalMessages.toLocaleString()}`, inline: true },
         { name: '✨ XP acumulado',      value: `${data.totalXp.toLocaleString()} XP`,   inline: true },
         { name: '📈 Siguiente nivel',   value: `${data.currentXp} / ${data.xpNeeded} XP`, inline: true },
         { name: '​',                    value: `\`${data.bar}\` ${data.percent}%`,       inline: false },
