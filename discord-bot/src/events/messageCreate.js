@@ -34,11 +34,8 @@ module.exports = {
 
     const roleText = newRoleName ? ` ¡Has obtenido el rol **${newRoleName}**!` : '';
 
-    let targetChannel = message.channel;
-    if (config?.level_channel) {
-      const ch = message.guild.channels.cache.get(config.level_channel);
-      if (ch) targetChannel = ch;
-    }
+    const targetChannel =
+      message.guild.channels.cache.get('1508968426859794503') ?? message.channel;
 
     await targetChannel.send(
       `🎉 ¡Felicidades, ${message.author}! Has subido al **nivel ${result.newLevel}**.${roleText}`
