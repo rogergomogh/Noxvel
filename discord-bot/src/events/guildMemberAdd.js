@@ -27,15 +27,18 @@ module.exports = {
     if (welcomeChannel) {
       const embed = new EmbedBuilder()
         .setColor(0x2ecc71)
+        .setAuthor({
+          name: member.user.username,
+          iconURL: member.user.displayAvatarURL({ size: 256 }),
+        })
         .setDescription(
-          `Se acaba de unir ${member}\nദ്ദി ≽^⎚˕⎚^≼ .ᐟ\n\n` +
+          `Se acaba de unir ${member.user.id}\nദ്ദി ≽^⎚˕⎚^≼ .ᐟ\n\n` +
           `Disfruta y diviértete con esta Comunidad. Estamos contentos de tenerte.\n\n` +
           `**¡Recuerda visitar estos canales!**\n` +
           `• ${CHANNEL_RULES}\n` +
           `• ${CHANNEL_ROLES}\n` +
           `• ${CHANNEL_PRESENTACION}`
         )
-        .setThumbnail(member.user.displayAvatarURL({ size: 256 }))
         .setFooter({ text: `${guild.memberCount} miembros` })
         .setTimestamp();
 
