@@ -1,17 +1,20 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getLeaderboard, calcLevel } = require('../../utils/levels');
+const db = require('../../database/db');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('leaderboard')
-    .setDescription('Top 10 usuarios con más nivel del servidor'),
+    .setDescription('Muestra el top 5 de usuarios con más nivel del servidor'),
 
   async execute(interaction) {
     await interaction.deferReply();
 
-    const board = getLeaderboard(interaction.guild.id, 10);
+    const guildId = interaction.guild.id;
+    const all   = getLeaderboard(guildId, 9999);
+    const top5  = all.slice(0, 5);
 
-    if (!board.length) {
+    if (!top5.length) {
       return interaction.editReply({
         embeds: [new EmbedBuilder()
           .setColor(0xe74c3c)
@@ -19,9 +22,9 @@ module.exports = {
       });
     }
 
-    const medals = ['🥇', '🥈', '🥉'];
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
 
-    const lines = await Promise.all(board.map(async (row, i) => {
+    const lines = await Promise.all(top5.map(async (row, i) => {
       const { level } = calcLevel(row.xp);
       let username;
       try {
@@ -30,15 +33,26 @@ module.exports = {
       } catch {
         username = `Usuario (${row.user_id})`;
       }
-
-      const pos = medals[i] ?? `**${i + 1}.**`;
-      return `${pos} **${username}** — Nivel ${level} · ${row.xp.toLocaleString()} XP`;
+      return `${medals[i]} **${username}** — Nivel ${level} · ${row.xp.toLocaleString()} XP`;
     }));
+
+    // Posición del autor
+    const authorIndex = all.findIndex(r => r.user_id === interaction.user.id);
+    let authorLine;
+    if (authorIndex === -1) {
+      authorLine = 'No tienes XP todavía.';
+    } else {
+      const { level } = calcLevel(all[authorIndex].xp);
+      const pos = authorIndex + 1;
+      const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : `#${pos}`;
+      authorLine = `${medal} **Tú** — Nivel ${level} · ${all[authorIndex].xp.toLocaleString()} XP`;
+    }
 
     const embed = new EmbedBuilder()
       .setColor(0xf1c40f)
-      .setTitle(`🏆 Top 10 — ${interaction.guild.name}`)
+      .setTitle(`🏆 Top 5 — ${interaction.guild.name}`)
       .setDescription(lines.join('\n'))
+      .addFields({ name: '📍 Tu posición', value: authorLine })
       .setThumbnail(interaction.guild.iconURL())
       .setTimestamp();
 
