@@ -39,6 +39,7 @@ module.exports = {
           `• ${CHANNEL_ROLES}\n` +
           `• ${CHANNEL_PRESENTACION}`
         )
+        .setThumbnail('https://cdn.discordapp.com/emojis/1511432602706378915.gif')
         .setFooter({ text: `${guild.memberCount} miembros` })
         .setTimestamp();
 
